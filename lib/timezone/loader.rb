@@ -5,17 +5,12 @@ require 'timezone/error'
 module Timezone
   # Responsible for loading and parsing timezone data from files.
   module Loader
+    ZONE_FILE_PATH = File.expand_path("#{File.dirname(__FILE__)}/../../data")
     SOURCE_BIT = 0
 
     @rules = {} # cache of loaded rules
 
     class << self
-      attr_writer :zone_file_path
-
-      def zone_file_path
-        @zone_file_path ||= File.expand_path(File.dirname(__FILE__) + '/../../data')
-      end
-
       def load(name)
         @rules.fetch(name) do
           raise ::Timezone::Error::InvalidZone unless valid?(name)
@@ -35,10 +30,10 @@ module Timezone
       private
 
       def parse_zone_names
-        files = Dir[File.join(zone_file_path, '**/*')].map do |file|
+        files = Dir[File.join(ZONE_FILE_PATH, '**/*')].map do |file|
           next if File.directory?(file)
 
-          file.sub("#{zone_file_path}/", '')
+          file.sub("#{ZONE_FILE_PATH}/", '')
         end
 
         files.compact
@@ -61,9 +56,10 @@ module Timezone
 
       # Retrieve the data from a particular time zone
       def get_zone_data(name)
-        File.read(File.join(zone_file_path, name))
+        File.read(File.join(ZONE_FILE_PATH, name))
       end
     end
   end
 
+  private_constant :Loader
 end
